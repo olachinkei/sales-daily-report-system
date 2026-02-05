@@ -27,7 +27,3 @@ body {
     sans-serif;
   line-height: 1.5;
 }
-
-#__next {
-  isolation: isolate;
-}
