@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 営業マスタ (Sales Master)
+model Sales {
+  id         Int      @id @default(autoincrement()) @map("sales_id")
+  name       String   @map("sales_name") @db.VarChar(100)
+  email      String   @unique @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  department String?  @db.VarChar(100)
+  managerId  Int?     @map("manager_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  // Self-referential relation for manager-subordinate hierarchy
+  manager      Sales?        @relation("ManagerSubordinates", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subordinates Sales[]       @relation("ManagerSubordinates")
+
+  // Relations
+  dailyReports DailyReport[]
+  customers    Customer[]
+  comments     Comment[]
+
+  @@index([managerId])
+  @@map("sales")
+}
+
+// 顧客マスタ (Customer Master)
+model Customer {
+  id        Int      @id @default(autoincrement()) @map("customer_id")
+  name      String   @map("customer_name") @db.VarChar(200)
+  address   String?  @db.VarChar(500)
+  phone     String?  @db.VarChar(50)
+  industry  String?  @db.VarChar(100)
+  salesId   Int      @map("sales_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  sales        Sales          @relation(fields: [salesId], references: [id])
+  visitRecords VisitRecord[]
+
+  @@index([salesId])
+  @@map("customers")
+}
+
+// 日報ステータス
+enum ReportStatus {
+  DRAFT     @map("draft")
+  SUBMITTED @map("submitted")
+
+  @@map("report_status")
+}
+
+// 日報 (Daily Report)
+model DailyReport {
+  id         Int          @id @default(autoincrement()) @map("report_id")
+  salesId    Int          @map("sales_id")
+  reportDate DateTime     @map("report_date") @db.Date
+  problem    String?      @db.Text
+  plan       String?      @db.Text
+  status     ReportStatus @default(DRAFT)
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  sales        Sales          @relation(fields: [salesId], references: [id])
+  visitRecords VisitRecord[]
+  comments     Comment[]
+
+  // Unique constraint: one report per sales per day
+  @@unique([salesId, reportDate], name: "unique_sales_report_date")
+  @@index([salesId])
+  @@index([reportDate])
+  @@map("daily_reports")
+}
+
+// 訪問記録 (Visit Record)
+model VisitRecord {
+  id           Int      @id @default(autoincrement()) @map("visit_id")
+  reportId     Int      @map("report_id")
+  customerId   Int      @map("customer_id")
+  visitTime    DateTime @map("visit_time") @db.Time()
+  visitContent String   @map("visit_content") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  dailyReport DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  customer    Customer    @relation(fields: [customerId], references: [id])
+
+  @@index([reportId])
+  @@index([customerId])
+  @@map("visit_records")
+}
+
+// コメント (Comment)
+model Comment {
+  id             Int      @id @default(autoincrement()) @map("comment_id")
+  reportId       Int      @map("report_id")
+  commenterId    Int      @map("commenter_id")
+  commentContent String   @map("comment_content") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  dailyReport DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  commenter   Sales       @relation(fields: [commenterId], references: [id])
+
+  @@index([reportId])
+  @@index([commenterId])
+  @@map("comments")
+}

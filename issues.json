@@ -1,0 +1,147 @@
+[
+  {
+    "title": "[Setup] プロジェクト初期セットアップとNext.js環境構築",
+    "body": "## 概要\nNext.js (App Router) + TypeScript の開発環境を構築する\n\n## タスク\n- [ ] Next.js 14+ (App Router) のインストールと設定\n- [ ] TypeScript設定ファイル (tsconfig.json) の最適化\n- [ ] `src/app` ディレクトリ構造の作成\n- [ ] 環境変数設定 (.env.local)\n- [ ] 開発サーバーの起動確認\n\n## 技術スタック\n- Next.js 14+ (App Router)\n- TypeScript 5.x\n- Node.js 20.x\n\n## 受け入れ基準\n- `npm run dev` で開発サーバーが起動すること\n- TypeScriptのコンパイルエラーがないこと\n- Hot Reloadが動作すること",
+    "labels": ["setup", "priority: high"]
+  },
+  {
+    "title": "[Setup] Tailwind CSS と shadcn/ui のセットアップ",
+    "body": "## 概要\nTailwind CSS と shadcn/ui を導入し、UIコンポーネントの基盤を構築する\n\n## タスク\n- [ ] Tailwind CSS のインストールと設定\n- [ ] PostCSS設定\n- [ ] shadcn/ui の初期化 (`npx shadcn-ui@latest init`)\n- [ ] コンポーネントライブラリの設定 (components.json)\n- [ ] グローバルスタイルの設定\n- [ ] カラーテーマの設定 (theme.ts)\n\n## 導入するshadcn/uiコンポーネント（初期）\n- Button\n- Input\n- Card\n- Dialog\n- Table\n- Form\n- Select\n- Textarea\n\n## 受け入れ基準\n- Tailwind CSSのユーティリティクラスが使用できること\n- shadcn/uiコンポーネントがインポートできること\n- ダークモード切り替えが動作すること",
+    "labels": ["setup", "ui", "priority: high"]
+  },
+  {
+    "title": "[Backend] Prisma Client生成とデータベース接続",
+    "body": "## 概要\nPrisma Clientを生成し、データベース接続を確立する\n\n## タスク\n- [ ] `npm run prisma:generate` でPrisma Client生成\n- [ ] データベース接続のユーティリティ作成 (`src/lib/prisma.ts`)\n- [ ] シングルトンパターンでPrismaClientインスタンスを管理\n- [ ] 開発環境でのコネクション管理\n\n## ファイル\n```typescript\n// src/lib/prisma.ts\nimport { PrismaClient } from '@prisma/client'\n\nconst globalForPrisma = global as unknown as { prisma: PrismaClient }\n\nexport const prisma =\n  globalForPrisma.prisma ||\n  new PrismaClient({\n    log: ['query', 'error', 'warn'],\n  })\n\nif (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma\n```\n\n## 受け入れ基準\n- Prisma Clientが生成されていること\n- データベース接続が確立できること\n- クエリログが出力されること",
+    "labels": ["backend", "database", "priority: high"]
+  },
+  {
+    "title": "[Backend] Zod バリデーションスキーマの定義",
+    "body": "## 概要\nAPI リクエスト/レスポンスのバリデーション用にZodスキーマを定義する\n\n## タスク\n- [ ] Zodのインストール\n- [ ] 認証スキーマ定義 (`src/lib/validations/auth.ts`)\n- [ ] 日報スキーマ定義 (`src/lib/validations/daily-report.ts`)\n- [ ] 訪問記録スキーマ定義 (`src/lib/validations/visit.ts`)\n- [ ] 顧客スキーマ定義 (`src/lib/validations/customer.ts`)\n- [ ] 営業スキーマ定義 (`src/lib/validations/sales.ts`)\n- [ ] コメントスキーマ定義 (`src/lib/validations/comment.ts`)\n\n## スキーマ例\n```typescript\nimport { z } from 'zod'\n\nexport const loginSchema = z.object({\n  email: z.string().email('有効なメールアドレスを入力してください'),\n  password: z.string().min(8, 'パスワードは8文字以上で入力してください'),\n})\n\nexport const dailyReportSchema = z.object({\n  reportDate: z.string().regex(/^\\d{4}-\\d{2}-\\d{2}$/),\n  problem: z.string().optional(),\n  plan: z.string().optional(),\n  status: z.enum(['draft', 'submitted']),\n})\n```\n\n## 受け入れ基準\n- 全エンティティのスキーマが定義されていること\n- エラーメッセージが日本語化されていること\n- TypeScript型が自動生成されること",
+    "labels": ["backend", "validation", "priority: high"]
+  },
+  {
+    "title": "[Backend] 認証API実装 - ログイン・ログアウト・トークン更新",
+    "body": "## 概要\nJWT認証を実装し、ログイン・ログアウト・トークン更新のAPIを作成する\n\n## タスク\n- [ ] NextAuth.js または jose ライブラリのインストール\n- [ ] `/api/auth/login` - ログインAPI実装\n- [ ] `/api/auth/logout` - ログアウトAPI実装\n- [ ] `/api/auth/refresh` - トークン更新API実装\n- [ ] bcryptでパスワードハッシュ検証\n- [ ] JWTトークン生成・検証ユーティリティ作成\n- [ ] 認証ミドルウェア作成\n\n## エンドポイント\n- `POST /api/auth/login`\n- `POST /api/auth/logout`\n- `POST /api/auth/refresh`\n\n## 受け入れ基準\n- ログインが成功し、JWTトークンが返却されること\n- 無効な認証情報で401エラーが返ること\n- トークンの有効期限が設定されていること\n- リフレッシュトークンで新しいトークンが取得できること",
+    "labels": ["backend", "api", "auth", "priority: high"]
+  },
+  {
+    "title": "[Backend] 日報API実装 - CRUD操作",
+    "body": "## 概要\n日報の作成・取得・更新・削除APIを実装する\n\n## タスク\n- [ ] `GET /api/daily-reports` - 自分の日報一覧取得\n- [ ] `GET /api/daily-reports/subordinates` - 部下の日報一覧取得（上長のみ）\n- [ ] `GET /api/daily-reports/[id]` - 日報詳細取得\n- [ ] `POST /api/daily-reports` - 日報作成\n- [ ] `PUT /api/daily-reports/[id]` - 日報更新\n- [ ] `DELETE /api/daily-reports/[id]` - 日報削除（下書きのみ）\n- [ ] ページネーション実装\n- [ ] 日付範囲フィルタ実装\n\n## ビジネスロジック\n- 1営業につき1日1件の制約チェック\n- 本人または上長のみアクセス可能\n- 提出済み日報は削除不可\n- レスポンスに訪問記録数・コメント数を含める\n\n## 受け入れ基準\n- 全エンドポイントが正常に動作すること\n- 権限チェックが適切に行われること\n- エラーハンドリングが実装されていること\n- Zodバリデーションが動作すること",
+    "labels": ["backend", "api", "daily-report", "priority: high"]
+  },
+  {
+    "title": "[Backend] 訪問記録API実装",
+    "body": "## 概要\n訪問記録の追加・更新・削除APIを実装する\n\n## タスク\n- [ ] `POST /api/daily-reports/[reportId]/visits` - 訪問記録追加\n- [ ] `PUT /api/visits/[id]` - 訪問記録更新\n- [ ] `DELETE /api/visits/[id]` - 訪問記録削除\n- [ ] 顧客IDの存在チェック\n- [ ] 日報の所有者チェック\n\n## ビジネスロジック\n- 訪問記録は日報作成者のみ追加・編集・削除可能\n- 顧客は顧客マスタに存在する必要がある\n- 訪問時刻のバリデーション\n\n## 受け入れ基準\n- 訪問記録のCRUD操作が正常に動作すること\n- 存在しない顧客IDで400エラーが返ること\n- 他人の訪問記録を編集できないこと",
+    "labels": ["backend", "api", "visit-record", "priority: medium"]
+  },
+  {
+    "title": "[Backend] コメントAPI実装",
+    "body": "## 概要\n上長が部下の日報にコメントを投稿するAPIを実装する\n\n## タスク\n- [ ] `POST /api/daily-reports/[reportId]/comments` - コメント追加（上長のみ）\n- [ ] `PUT /api/comments/[id]` - コメント更新\n- [ ] `DELETE /api/comments/[id]` - コメント削除\n- [ ] 上長-部下関係のチェック\n\n## ビジネスロジック\n- コメントは上長のみ投稿可能\n- 日報作成者の上長であることを確認\n- コメント作成者のみ編集・削除可能\n\n## 受け入れ基準\n- 上長のみコメント投稿できること\n- 部下関係にない日報にはコメントできないこと\n- コメント作成者のみ編集・削除できること",
+    "labels": ["backend", "api", "comment", "priority: medium"]
+  },
+  {
+    "title": "[Backend] 顧客マスタAPI実装",
+    "body": "## 概要\n顧客マスタのCRUD APIを実装する\n\n## タスク\n- [ ] `GET /api/customers` - 顧客一覧取得\n- [ ] `GET /api/customers/[id]` - 顧客詳細取得（訪問履歴含む）\n- [ ] `POST /api/customers` - 顧客登録\n- [ ] `PUT /api/customers/[id]` - 顧客更新\n- [ ] `DELETE /api/customers/[id]` - 顧客削除\n- [ ] キーワード検索実装\n- [ ] 担当営業フィルタ実装\n\n## ビジネスロジック\n- 訪問記録が存在する顧客は削除不可\n- 顧客詳細には最近の訪問履歴を含める\n\n## 受け入れ基準\n- CRUD操作が正常に動作すること\n- 検索・フィルタが動作すること\n- 訪問記録がある顧客の削除が拒否されること",
+    "labels": ["backend", "api", "customer", "priority: medium"]
+  },
+  {
+    "title": "[Backend] 営業マスタAPI実装",
+    "body": "## 概要\n営業マスタのCRUD APIを実装する（管理者のみ）\n\n## タスク\n- [ ] `GET /api/sales` - 営業一覧取得（管理者のみ）\n- [ ] `GET /api/sales/[id]` - 営業詳細取得\n- [ ] `GET /api/sales/subordinates` - 部下一覧取得\n- [ ] `POST /api/sales` - 営業登録（管理者のみ）\n- [ ] `PUT /api/sales/[id]` - 営業更新（管理者のみ）\n- [ ] `DELETE /api/sales/[id]` - 営業削除（管理者のみ）\n\n## ビジネスロジック\n- 管理者のみCRUD操作可能\n- メールアドレスの重複チェック\n- 日報が存在する営業は削除不可\n- 循環参照チェック（上長設定）\n\n## 受け入れ基準\n- 管理者のみアクセスできること\n- メールアドレス重複時にエラーが返ること\n- 循環参照が防止されていること",
+    "labels": ["backend", "api", "sales", "priority: medium"]
+  },
+  {
+    "title": "[Backend] ダッシュボードAPI実装",
+    "body": "## 概要\nダッシュボード表示用のサマリー情報を取得するAPIを実装する\n\n## タスク\n- [ ] `GET /api/dashboard` - ダッシュボード情報取得\n- [ ] 週次サマリー計算（訪問数、日報提出数、未読コメント数）\n- [ ] 最近の日報取得\n- [ ] 部下の日報サマリー取得（上長のみ）\n\n## レスポンス内容\n- ユーザー情報\n- 今週の活動サマリー\n- 最近の日報リスト\n- 部下の日報ステータス（上長の場合）\n\n## 受け入れ基準\n- サマリー情報が正確に計算されること\n- 上長の場合は部下情報が含まれること\n- パフォーマンスが最適化されていること",
+    "labels": ["backend", "api", "dashboard", "priority: medium"]
+  },
+  {
+    "title": "[Frontend] 認証機能 - ログイン画面実装",
+    "body": "## 概要\nログイン画面とセッション管理を実装する\n\n## タスク\n- [ ] ログインページ作成 (`src/app/login/page.tsx`)\n- [ ] ログインフォームコンポーネント作成\n- [ ] フォームバリデーション（Zod + React Hook Form）\n- [ ] 認証状態管理（Context API or Zustand）\n- [ ] ログイン後のリダイレクト処理\n- [ ] エラーメッセージ表示\n- [ ] ローディング状態の表示\n\n## UIコンポーネント\n- shadcn/ui: Card, Input, Button, Form\n\n## 受け入れ基準\n- メールアドレスとパスワードでログインできること\n- バリデーションエラーが表示されること\n- ログイン成功後にダッシュボードへ遷移すること\n- 認証エラー時に適切なメッセージが表示されること",
+    "labels": ["frontend", "auth", "priority: high"]
+  },
+  {
+    "title": "[Frontend] レイアウトとナビゲーション実装",
+    "body": "## 概要\nアプリ全体のレイアウトとナビゲーションを実装する\n\n## タスク\n- [ ] RootLayout作成 (`src/app/layout.tsx`)\n- [ ] ヘッダーコンポーネント作成\n- [ ] サイドバーナビゲーション作成\n- [ ] ユーザーメニュー（ログアウト）実装\n- [ ] レスポンシブ対応（モバイル: ハンバーガーメニュー）\n- [ ] 認証ガード実装\n\n## ナビゲーション項目\n- ダッシュボード\n- 日報（自分・部下）\n- 顧客マスタ\n- 営業マスタ（管理者のみ）\n\n## 受け入れ基準\n- ナビゲーションが全ページで表示されること\n- アクティブなページがハイライトされること\n- モバイルでハンバーガーメニューが動作すること\n- 未認証時はログインページへリダイレクトすること",
+    "labels": ["frontend", "layout", "priority: high"]
+  },
+  {
+    "title": "[Frontend] ダッシュボード画面実装",
+    "body": "## 概要\nダッシュボード画面を実装する\n\n## タスク\n- [ ] ダッシュボードページ作成 (`src/app/dashboard/page.tsx`)\n- [ ] クイックアクションボタン実装\n- [ ] 週次サマリーカード実装\n- [ ] 最近の日報リスト実装\n- [ ] 部下の日報ステータス実装（上長のみ）\n- [ ] データフェッチングとローディング状態\n\n## UIコンポーネント\n- shadcn/ui: Card, Button, Badge, Table\n\n## 受け入れ基準\n- サマリー情報が正しく表示されること\n- 上長の場合は部下情報が表示されること\n- クイックアクションボタンが動作すること\n- ローディング状態が適切に表示されること",
+    "labels": ["frontend", "dashboard", "priority: high"]
+  },
+  {
+    "title": "[Frontend] 日報作成・編集フォーム実装",
+    "body": "## 概要\n日報の作成・編集フォームを実装する\n\n## タスク\n- [ ] 日報フォームページ作成 (`src/app/reports/new/page.tsx`, `src/app/reports/[id]/edit/page.tsx`)\n- [ ] 日付選択コンポーネント\n- [ ] Problem/Plan入力エリア\n- [ ] 訪問記録テーブル（追加・編集・削除）\n- [ ] 訪問記録追加モーダル実装\n- [ ] 顧客選択ドロップダウン\n- [ ] 下書き保存・提出ボタン\n- [ ] フォームバリデーション\n\n## UIコンポーネント\n- shadcn/ui: Form, Input, Textarea, Select, Dialog, Table, Button\n\n## 受け入れ基準\n- 日報の作成・編集ができること\n- 訪問記録を動的に追加・削除できること\n- 下書き保存と提出が選択できること\n- バリデーションエラーが表示されること",
+    "labels": ["frontend", "daily-report", "form", "priority: high"]
+  },
+  {
+    "title": "[Frontend] 日報一覧画面実装（自分）",
+    "body": "## 概要\n自分の日報一覧画面を実装する\n\n## タスク\n- [ ] 日報一覧ページ作成 (`src/app/reports/page.tsx`)\n- [ ] 日報リストテーブル実装\n- [ ] 日付範囲フィルタ実装\n- [ ] ステータスフィルタ実装\n- [ ] ページネーション実装\n- [ ] 新規作成ボタン\n- [ ] 編集・詳細ボタン\n\n## UIコンポーネント\n- shadcn/ui: Table, Button, Badge, DatePicker, Pagination\n\n## 受け入れ基準\n- 日報一覧が表示されること\n- フィルタが動作すること\n- ページネーションが動作すること\n- 新規作成・編集遷移ができること",
+    "labels": ["frontend", "daily-report", "list", "priority: high"]
+  },
+  {
+    "title": "[Frontend] 日報一覧画面実装（部下・上長用）",
+    "body": "## 概要\n部下の日報一覧画面を実装する（上長専用）\n\n## タスク\n- [ ] 部下日報一覧ページ作成 (`src/app/reports/subordinates/page.tsx`)\n- [ ] 部下フィルタ実装\n- [ ] コメント済み・未コメントフィルタ\n- [ ] 未提出アラート表示\n- [ ] 督促機能実装\n\n## UIコンポーネント\n- shadcn/ui: Table, Select, Badge, Alert\n\n## 受け入れ基準\n- 上長のみアクセスできること\n- 部下の日報が一覧表示されること\n- 未提出日報がハイライトされること\n- フィルタが動作すること",
+    "labels": ["frontend", "daily-report", "manager", "priority: medium"]
+  },
+  {
+    "title": "[Frontend] 日報詳細・コメント画面実装",
+    "body": "## 概要\n日報詳細とコメント機能を実装する\n\n## タスク\n- [ ] 日報詳細ページ作成 (`src/app/reports/[id]/page.tsx`)\n- [ ] 日報内容表示（訪問記録含む）\n- [ ] コメント一覧表示\n- [ ] コメント投稿フォーム（上長のみ）\n- [ ] コメント編集・削除機能\n- [ ] リアルタイム更新（オプション）\n\n## UIコンポーネント\n- shadcn/ui: Card, Textarea, Button, Avatar\n\n## 受け入れ基準\n- 日報詳細が表示されること\n- 上長のみコメント投稿できること\n- コメントスレッドが表示されること\n- コメント投稿後に画面が更新されること",
+    "labels": ["frontend", "daily-report", "comment", "priority: medium"]
+  },
+  {
+    "title": "[Frontend] 顧客マスタ一覧画面実装",
+    "body": "## 概要\n顧客マスタの一覧画面を実装する\n\n## タスク\n- [ ] 顧客一覧ページ作成 (`src/app/customers/page.tsx`)\n- [ ] 顧客リストテーブル実装\n- [ ] キーワード検索実装\n- [ ] 担当営業フィルタ実装\n- [ ] 新規登録ボタン\n- [ ] 編集・削除ボタン\n- [ ] ページネーション実装\n\n## UIコンポーネント\n- shadcn/ui: Table, Input, Select, Button, Pagination\n\n## 受け入れ基準\n- 顧客一覧が表示されること\n- 検索・フィルタが動作すること\n- 新規登録・編集遷移ができること\n- 削除確認ダイアログが表示されること",
+    "labels": ["frontend", "customer", "list", "priority: medium"]
+  },
+  {
+    "title": "[Frontend] 顧客マスタ登録・編集フォーム実装",
+    "body": "## 概要\n顧客マスタの登録・編集フォームを実装する\n\n## タスク\n- [ ] 顧客フォームページ作成 (`src/app/customers/new/page.tsx`, `src/app/customers/[id]/edit/page.tsx`)\n- [ ] 顧客情報入力フォーム実装\n- [ ] 担当営業選択ドロップダウン\n- [ ] フォームバリデーション\n- [ ] 保存・キャンセルボタン\n\n## UIコンポーネント\n- shadcn/ui: Form, Input, Select, Button\n\n## 受け入れ基準\n- 顧客の登録・編集ができること\n- バリデーションエラーが表示されること\n- 保存後に一覧画面へ遷移すること",
+    "labels": ["frontend", "customer", "form", "priority: medium"]
+  },
+  {
+    "title": "[Frontend] 営業マスタ管理画面実装（管理者用）",
+    "body": "## 概要\n営業マスタの管理画面を実装する（管理者専用）\n\n## タスク\n- [ ] 営業一覧ページ作成 (`src/app/admin/sales/page.tsx`)\n- [ ] 営業リストテーブル実装\n- [ ] 新規登録・編集・削除機能\n- [ ] 上長設定ドロップダウン\n- [ ] 権限チェック（管理者のみアクセス可能）\n\n## UIコンポーネント\n- shadcn/ui: Table, Form, Select, Button, Dialog\n\n## 受け入れ基準\n- 管理者のみアクセスできること\n- 営業担当者のCRUD操作ができること\n- 上長が選択できること\n- メールアドレス重複時にエラーが表示されること",
+    "labels": ["frontend", "sales", "admin", "priority: low"]
+  },
+  {
+    "title": "[Testing] 認証APIのテスト実装",
+    "body": "## 概要\n認証関連APIのユニット・統合テストを実装する\n\n## タスク\n- [ ] ログインAPIテスト\n- [ ] ログアウトAPIテスト\n- [ ] トークンリフレッシュAPIテスト\n- [ ] 認証ミドルウェアテスト\n- [ ] エラーケーステスト（無効な認証情報、期限切れトークンなど）\n\n## テストケース\n- 正常系: ログイン成功、トークン取得\n- 異常系: 無効なメールアドレス、パスワード不一致、存在しないユーザー\n- 境界値: パスワード長、トークン有効期限\n\n## 受け入れ基準\n- 全テストケースが合格すること\n- カバレッジが80%以上であること",
+    "labels": ["testing", "api", "auth", "priority: medium"]
+  },
+  {
+    "title": "[Testing] 日報APIのテスト実装",
+    "body": "## 概要\n日報関連APIのユニット・統合テストを実装する\n\n## タスク\n- [ ] 日報CRUD操作テスト\n- [ ] ページネーションテスト\n- [ ] フィルタリングテスト\n- [ ] 権限チェックテスト\n- [ ] ビジネスルールテスト（1日1件制約、削除制限など）\n\n## テストケース\n- 正常系: 作成、取得、更新、削除\n- 異常系: 権限エラー、重複エラー、存在しないID\n- ビジネスルール: 提出済み削除不可、本人・上長のみアクセス\n\n## 受け入れ基準\n- 全テストケースが合格すること\n- カバレッジが80%以上であること",
+    "labels": ["testing", "api", "daily-report", "priority: medium"]
+  },
+  {
+    "title": "[Testing] UIコンポーネントのテスト実装",
+    "body": "## 概要\nReactコンポーネントのテストを実装する\n\n## タスク\n- [ ] ログインフォームテスト\n- [ ] 日報フォームテスト\n- [ ] テーブルコンポーネントテスト\n- [ ] モーダルコンポーネントテスト\n- [ ] ユーザーインタラクションテスト\n\n## テストツール\n- Vitest\n- @testing-library/react\n- @testing-library/user-event\n\n## 受け入れ基準\n- 主要コンポーネントのテストが実装されていること\n- ユーザーインタラクションがテストされていること\n- スナップショットテストが実装されていること",
+    "labels": ["testing", "frontend", "component", "priority: low"]
+  },
+  {
+    "title": "[Testing] E2Eテストシナリオの実装",
+    "body": "## 概要\nPlaywrightを使用したE2Eテストを実装する\n\n## タスク\n- [ ] Playwrightのセットアップ\n- [ ] ログイン→日報作成→提出のシナリオテスト\n- [ ] 上長がコメント投稿するシナリオテスト\n- [ ] 顧客登録→訪問記録追加のシナリオテスト\n\n## テストシナリオ\n1. 営業担当者の日報作成フロー\n2. 上長のコメント投稿フロー\n3. 顧客マスタ登録と訪問記録作成フロー\n\n## 受け入れ基準\n- 主要なユーザーフローがテストされていること\n- CI環境でテストが実行されること",
+    "labels": ["testing", "e2e", "priority: low"]
+  },
+  {
+    "title": "[Docs] OpenAPI仕様書の生成",
+    "body": "## 概要\nOpenAPI (Swagger) 仕様書を生成し、API ドキュメントを公開する\n\n## タスク\n- [ ] OpenAPI仕様ファイル作成 (`openapi.yaml` または `openapi.json`)\n- [ ] 全APIエンドポイントの定義\n- [ ] リクエスト・レスポンススキーマ定義\n- [ ] Swagger UIのセットアップ\n- [ ] `/api-docs` エンドポイントの公開\n\n## ツール\n- swagger-jsdoc または手動定義\n- swagger-ui-react\n\n## 受け入れ基準\n- 全APIエンドポイントが定義されていること\n- Swagger UIでAPIを確認できること\n- スキーマ定義がZodと一致していること",
+    "labels": ["docs", "api", "priority: low"]
+  },
+  {
+    "title": "[DevOps] Docker イメージの最適化",
+    "body": "## 概要\nDockerイメージをマルチステージビルドで最適化し、サイズを削減する\n\n## タスク\n- [ ] Next.js standalone出力の設定\n- [ ] マルチステージビルドの最適化\n- [ ] 不要なファイルの除外\n- [ ] イメージサイズの測定\n- [ ] ビルド時間の最適化\n\n## 目標\n- イメージサイズ: 500MB以下\n- ビルド時間: 5分以内\n\n## 受け入れ基準\n- Dockerイメージがビルドできること\n- イメージサイズが目標以下であること\n- 本番環境で正常に動作すること",
+    "labels": ["devops", "docker", "priority: low"]
+  },
+  {
+    "title": "[DevOps] GitHub Secrets の設定",
+    "body": "## 概要\nGitHub ActionsとGoogle Cloud Runのデプロイに必要なSecretsを設定する\n\n## タスク\n- [ ] Workload Identity Federationの設定\n- [ ] GitHub Secretsの登録\n  - `WIF_PROVIDER`\n  - `WIF_SERVICE_ACCOUNT`\n- [ ] Google Secret Managerの設定\n  - `DATABASE_URL`\n  - `JWT_SECRET`\n- [ ] 権限設定の確認\n\n## 受け入れ基準\n- GitHub ActionsからGoogle Cloudへ認証できること\n- デプロイワークフローが正常に動作すること\n- Secretsが安全に管理されていること",
+    "labels": ["devops", "ci-cd", "security", "priority: high"]
+  },
+  {
+    "title": "[DevOps] Cloud Run サービスの初回デプロイ",
+    "body": "## 概要\nCloud Runサービスを初回デプロイし、本番環境を構築する\n\n## タスク\n- [ ] Cloud SQLインスタンスの作成（PostgreSQL）\n- [ ] Cloud Run サービスの作成\n- [ ] データベースマイグレーションの実行\n- [ ] 環境変数の設定\n- [ ] ヘルスチェックエンドポイントの確認\n- [ ] カスタムドメインの設定（オプション）\n\n## 設定\n- Region: asia-northeast1\n- Memory: 1Gi\n- CPU: 2\n- Max Instances: 10\n\n## 受け入れ基準\n- Cloud Runサービスが起動すること\n- データベース接続が確立すること\n- APIエンドポイントにアクセスできること",
+    "labels": ["devops", "cloud-run", "deploy", "priority: high"]
+  }
+]
